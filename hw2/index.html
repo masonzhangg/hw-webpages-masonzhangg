@@ -116,10 +116,10 @@
       </div>
 
       <h3>Part 2: Bezier surfaces with separable 1D de Casteljau</h3>
-      A Bezier surface is defined by an n × m grid of control points rather than
-      a single row. The key insight for extension is that we can evaluate a
+      A Bezier surface is defined by an n by m grid of control points rather
+      than a single row. The key insight for extension is that we can evaluate a
       point on a Bezier surface by applying the 1D de Casteljau algorithm twice.
-      Once along one axis, then once along the other. Given a 4×4 grid of
+      Once along one axis, then once along the other. Given a 4 by 4 grid of
       control points and parameters (u, v): "Sweep" along u: Apply the full 1D
       de Casteljau algorithm to each row of control points at parameter u. Each
       row of 4 points reduces to a single point, giving 4 "column curve" points.
@@ -147,40 +147,228 @@
       <h2>Section II: Triangle Meshes and Half-Edge Data Structure</h2>
 
       <h3>Part 3: Area-weighted vertex normals</h3>
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-      tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-      veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-      commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-      velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-      cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
-      est laborum.
+      To compute an approximate unit normal at a vertex, I take the
+      area-weighted average of the normals of all neighboring triangles, then
+      normalize the result. The idea is that the cross product of two edge
+      vectors of a triangle points in the normal direction and has magnitude =
+      2x the triangle's area so summing cross products, automatically weights
+      each face's contribution by its area, with no extra bookkeeping needed.
+
+      <p>
+        Starting from the vertex's halfedge, I traverse all neighboring faces
+        using the twin() -> next() pattern to walk around the vertex. For each
+        neighboring triangle, I compute two edge vectors originating from the
+        vertex and take their cross product. Each cross(e1, e2) contributes a
+        vector whose direction is the face normal and whose magnitude is
+        proportional to the face's area, so larger triangles naturally exert
+        more influence on the final normal. After summing all contributions,
+        calling .unit() normalizes the result to a unit vector. This produces
+        smoother shading compared to a simple unweighted average.
+      </p>
+
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="sp3/img1.png" width="550px" height="400px" />
+              <figcaption>Flat Shading.</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="sp3/img2.png" width="550px" height="400px" />
+              <figcaption>Phong Shading.</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
 
       <h3>Part 4: Edge flip</h3>
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-      tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-      veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-      commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-      velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-      cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
-      est laborum.
+      The edge flip operation takes an interior edge shared by two triangles and
+      reorients it to connect the other pair of opposite vertices instead. My
+      approach was to collect all mesh elements before making any changes, then
+      reassign every pointer explicitly at the end. I even reassigned pointers
+      that don't logically change. This approach is more verbose but eliminates
+      subtle bugs where a partially-updated pointer corrupts a subsequent
+      assignment. Before touching anything, I collect all 6 halfedges (including
+      the 4 outer ones), 4 vertices, 3 edges, and 2 faces involved in the
+      two-triangle neighborhood. Then I call setNeighbors on every halfedge and
+      explicitly set halfedge() on every vertex, edge, and face.
+
+      <p>
+        The most useful strategy was drawing the "before" and "after" diagrams
+        on paper with every halfedge labeled before writing a single line of
+        code. Errors often manifest far from the source as corrupted geometry or
+        infinite loops during traversal. Having a concrete labeled diagram made
+        it straightforward to translate the target connectivity into
+        setNeighbors calls. Another safeguard was reassigning every element's
+        pointers unconditionally, even when they appear unchanged. It is easy to
+        incorrectly convince yourself that a particular pointer "stays the same"
+        across the flip. Writing them all out explicitly removes that assumption
+        and makes the code match the diagram.
+      </p>
+
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="sp4/img1.png" width="550px" height="400px" />
+              <figcaption>Before Flipping.</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="sp4/img2.png" width="550px" height="400px" />
+              <figcaption>After Flipping.</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
 
       <h3>Part 5: Edge split</h3>
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-      tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-      veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-      commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-      velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-      cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
-      est laborum.
+      The edge split operation inserts a new vertex m at the midpoint of the
+      shared edge between two triangles, then connects m to each of the two
+      opposing vertices, turning two triangles into four. My approach mirrored
+      Part 4. Before touching anything, I collected the 6 existing halfedges, 4
+      vertices, and 2 faces. I then allocated the new elements: 1 vertex, 2
+      faces, 3 edges, and 6 new halfedges (two per new edge). I had 4 resulting
+      triangles. For the new edges, e0 (the original split edge) and e1 (the
+      other half connecting m to v1) are marked isNew = false, since they lie
+      along the original edge. The two crossing edges e2 (m <-> v2) and e3 (m
+      <-> v3) are marked isNew = true, as they are genuinely new edges
+      introduced by the split.
+
+      <p>
+        The initial implementation produced a hole in the mesh whenever a split
+        was followed by a flip. The first suspected culprit was flipEdge
+        function, specifically that the outer halfedges h6 through h9 were not
+        having their twin pointers updated after reassignment. Adding explicit
+        h6->twin() = h5 style corrections seemed logical but did not resolve the
+        hole and was ultimately reverted. The actual bug was in f3's winding
+        order inside splitEdge. The halfedge at m within f3 was not reachable
+        via the standard twin() -> next() traversal around vertex m. When
+        walking around m by repeatedly following twin() -> next(), the traversal
+        reached f3 via c0 -> twin() = c1, then c1 -> next() which was
+        incorrectly set to h5 (a halfedge at v3, not m), breaking the cycle. The
+        fix was to reorder f3's halfedges so that b1 (starting at m) came next
+        in the cycle, with h5 closing the triangle as the v3 -> v1 halfedge: f3:
+        c1(v1 -> m), b1(m -> v3), h5(v3 -> v1) This ensured the twin-next walk
+        around m correctly visited all four neighboring faces without getting
+        stranded at a wrong vertex.
+      </p>
+
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="sp5/img1.png" width="500px" height="400px" />
+              <figcaption>Before Edge Splits.</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="sp5/img2.png" width="500px" height="400px" />
+              <figcaption>After Edge Splits.</figcaption>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center">
+              <img src="sp5/img1.png" width="500px" height="400px" />
+              <figcaption>Before Edge Splits and Flips.</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="sp5/img3.png" width="500px" height="400px" />
+              <figcaption>After Edge Splits and Flips.</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
 
       <h3>Part 6: Loop subdivision for mesh upsampling</h3>
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-      tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-      veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-      commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-      velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-      cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
-      est laborum.
+      Before touching the mesh topology, all new vertex positions are computed
+      on the original coarse mesh. For each old vertex, the weighted average (1
+      - n*u) * pos + u * neighborSum is stored in newPosition. For each edge,
+      the midpoint formula 3/8*(A+B) + 1/8*(C+D) is stored in edge ->
+      newPosition. Vertex::position is never modified here, only newPosition.
+      This is because the weighted averages must all reference the original
+      positions.
+
+      <p>
+        All original edges are snapshotted into a vector EdgeIter before any
+        splits begin. Iterating over mesh.edges() while splitting causes newly
+        created edges to enter the iterator, leading to infinite loops or
+        corruption. After each split, the midpoint vertex's newPosition is set
+        from the saved edge -> newPosition. Then a single pass flips every isNew
+        edge where exactly one endpoint is new (v0 -> isNew != v1 -> isNew),
+        implementing the XOR rule.
+      </p>
+
+      <p>A final pass copies newPosition into position for every vertex.</p>
+
+      <p>
+        After each loop subdivision iteration, the mesh becomes progressively
+        smoother. Sharp corners get pulled toward their neighbors and rounded
+        off, and sharp creases soften into smooth ridges.
+      </p>
+
+      <p>
+        Sharp corners shrink noticeably after just 1-2 iterations. A pointed
+        spike becomes a bump, and a 90-degree corner becomes a gentle curve.
+        Sharp edges also soften. A hard edge between two faces becomes a smooth
+        tangent transition after a few subdivisions. You can reduce this
+        smoothing effect by manually splitting edges along a sharp feature
+        before subdividing. Adding extra edges near a crease increases the local
+        vertex density, which means the weighted average is computed over
+        vertices that are geometrically closer together and nearer to the
+        original feature. The result is that the limit surface stays closer to
+        the original sharp edge. The more edges you add parallel to a crease,
+        the sharper it remains after subdivision.
+      </p>
+
+      <p>
+        (Preprocess): Before subdividing, manually split the diagonal edge on
+        each cube face and then flip to create an "X" pattern (both diagonals
+        present) on every face. This gives every face 4 symmetric triangles and
+        makes every corner vertex have degree 6 with a fully symmetric one-ring
+        neighborhood. Now all 8 corners have identical topological environments,
+        so the weighted averages pull each corner vertex by the same amount in
+        equivalent directions, and the cube subdivides into a symmetric rounded
+        shape.
+      </p>
+
+      <p>
+        Loop subdivision respects topology. Thus, symmetric connectivity
+        produces symmetric output. The pre-processing does not change the
+        geometry at all, only the edge connectivity. The symmetry of the input
+        topology is preserved through subdivision.
+      </p>
+
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="sp6/img1.png" width="500px" height="600px" />
+              <figcaption>Two Iterations.</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="sp6/img2.png" width="500px" height="600px" />
+              <figcaption>Three Iterations.</figcaption>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center">
+              <img src="sp6/img3.png" width="500px" height="600px" />
+              <figcaption>Four Iterations.</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="sp6/img4.png" width="500px" height="600px" />
+              <figcaption>Five Iterations.</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
     </div>
   </body>
 </html>
