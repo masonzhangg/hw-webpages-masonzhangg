@@ -1,0 +1,189 @@
+<html>
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      h1 {
+        text-align: center;
+      }
+
+      .container {
+        margin: 0 auto;
+        padding: 60px 20%;
+      }
+
+      figure {
+        text-align: center;
+      }
+
+      img {
+        display: inline-block;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Spring 2026 Final Project Proposal: Glass Shattering Simulation</h1>
+      <div style="text-align: center">
+        Names: Mason Zhang, Randy Bui, Skylar Robinson, Kyle Ye
+
+        <br />
+
+        Link to webpage:
+        <a href="masonzhangg.github.io/hw-webpages-masonzhangg/"
+          >masonzhangg.github.io/hw-webpages-masonzhangg/</a
+        ><br />
+        Link to GitHub repository:
+        <a href="https://github.com/masonzhangg/finalproj-glassbreaking/"
+          >github.com/masonzhangg/finalproj-glassbreaking/</a
+        >
+      </div>
+
+      <h2>Summary</h2>
+      This project implements a realistic glass shattering simulation using
+      computer graphics techniques. The simulation models the physical
+      properties of glass, including fracture propagation and fragment dynamics,
+      to produce break patterns. The goal is to render shattering effects that
+      accurately reflect how glass behaves under impact.
+
+      <h2>Problem Description</h2>
+      Many video games require glass breaking, whether that'd be for players
+      jumping out windows, breaking windows to get a better shot, or breaking
+      and replacing windows for a better looking house. However, it is
+      surprisingly difficult to simulate convincingly in real-time, as poorly
+      executed shattering effects are noticeable and break immersion for the
+      player. Glass shattering is a complex phenomenon that demands accurate
+      modeling of both fracture geometry (how cracks propagate across a surface
+      based on impact force and point of contact) and the resulting fragment
+      dynamics, including how shards fly and interact with the environment. To
+      address this, we will implement a realistic glass shattering simulation
+      that combines procedural fracture generation with physics-based fragment
+      simulation. Fracture patterns will be generated using Voronoi
+      decomposition to mimic the natural crack networks that form in real glass,
+      based on where and how hard the impact occurs. The resulting shards will
+      behave like physical objects, responding to gravity, collisions, and
+      rotation. Finally, the glass fragments will be rendered with transparency,
+      refraction, and reflections to make them look as realistic as possible.
+
+      <h2>What We Plan To Deliver</h2>
+      Our baseline goal is to deliver a demo in which a user can trigger a glass
+      shattering event and observe the result in a realistic and visually
+      convincing manner. This includes properly generated fracture patterns,
+      physically simulated shards that respond to gravity and collisions, and
+      glass-like rendering with transparency and reflections. To measure the
+      performance of our system, we will track and display the frame rate during
+      the shattering simulation, giving us a metric to evaluate how well our
+      implementation holds up under the computational load of real-time fragment
+      physics and rendering.
+
+      <h2>What We Hope To Deliver</h2>
+      If development goes smoothly, we hope to add onto the demo, transforming
+      it into a fully real-time, resettable experience where the glass
+      automatically resets after shattering, allowing the user to break it
+      repeatedly. This would demonstrate not only the visual quality of our
+      simulation but also its stability and consistency across multiple
+      shattering events. This would bring our project much closer to something
+      resembling a real game engine feature, where glass breaking needs to be
+      triggered reliably and repeatedly without degrading in performance or
+      quality over time.
+
+      <h2>Schedule</h2>
+      Week 1 (03/29 - 04/04): Research, Writing Proposal, and Planning. We will
+      be looking into Voronoi-based algorithms and find relevant literature and
+      implementations that we can reference. We will also be looking into rigid
+      body physics simulation techniques and glass rendering methods.
+      <br />
+
+      <p>
+        Week 2 (04/05 - 04/11): Begin Implementation. We will begin implementing
+        the core Voronoi decomposition system to generate fracture patterns on a
+        glass mesh. We will also work on splitting the glass geometry into
+        individual shard meshes based on the Voronoi regions. The physics
+        simulation and the rendering pipeline will also be set up, with gravity,
+        rigid body motion, and basic collision detection. Basic specular shading
+        and transparency will be implemented too.
+      </p>
+
+      <p>
+        Week 3 (04/12 - 04/18): Implement Enough for Milestone
+        Video/Slides/Webpage. We will integrate the fracture generation,
+        physics, and rendering systems together so that a complete shattering
+        event can be triggered and displayed. We will debug if necessary and
+        refine the shard physics so fagments can behave correctly after the
+        break. We will add refraction and reflections to the glass as well. We
+        will also need to make sure the fracturing behaves correctly and are
+        clean.
+      </p>
+
+      <p>
+        Week 4 (04/19 - 04/25): Implementation and Testing. We will be
+        performance testing, measuring the frames during the shattering and
+        rendering, maybe identifying bottlenecks. We will be optimizing the
+        algorithms. If time allows, we will work on the reset mechanic that
+        allows the glass to be continuously reshattered.
+      </p>
+
+      <p>
+        Week 5 (04/26 - 05/02): Final Slides/Video/Presentation Preparation +
+        Submission. We will wrap up the project with making the slides and
+        prepare for the in-person presentation on May 5. Everyone will
+        contribute to making the webpage, the video, and the slides. We will
+        also finish with the peer review forms also due May 5.
+      </p>
+
+      <h2>Resources</h2>
+      <ul>
+        <li>
+          <a
+            href="https://graphicsinterface.org/wp-content/uploads/gi2000-5.pdf"
+            target="_blank"
+            >Real-Time Dynamic Fracture with Voronoi Diagrams, Graphics
+            Interface 2000</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://www.realtimerendering.com/raytracing/An-Introduction-to-Ray-Tracing-The-Morgan-Kaufmann-Series-in-Computer-Graphics-.pdf"
+            target="_blank"
+            >An Introduction to Ray Tracing, Morgan Kaufmann</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://www.cs.cmu.edu/~baraff/sigcourse/slidesd.pdf"
+            target="_blank"
+            >Rigid Body Dynamics, CMU SIGGRAPH Course Notes</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://dl.acm.org/doi/pdf/10.1145/2461912.2461934"
+            target="_blank"
+            >Simulating Glass Shattering, ACM SIGGRAPH 2013</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://dl.acm.org/doi/pdf/10.1145/2556700.2556713"
+            target="_blank"
+            >Procedural Fracture and Fragment Simulation, ACM 2014</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://www.opengl.org/Documentation/Documentation.html"
+            target="_blank"
+            >OpenGL Documentation</a
+          >
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>
