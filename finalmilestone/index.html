@@ -1,0 +1,116 @@
+<html>
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      h1 {
+        text-align: center;
+        font-size: 1.5em;
+      }
+
+      .container {
+        margin: 0 auto;
+        padding: 60px 20%;
+      }
+
+      figure {
+        text-align: center;
+      }
+
+      img {
+        display: inline-block;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Spring 2026 Final Project Milestone: Glass Shattering Simulation</h1>
+      <div style="text-align: center; font-size: 1em">
+        Names: Mason Zhang, Randy Bui, Skylar Robinson, Kyle Ye
+
+        <br />
+
+        Link to webpage:
+        <a
+          href="https://masonzhangg.github.io/hw-webpages-masonzhangg/finalmilestone/index.html"
+          >masonzhangg.github.io/hw-webpages-masonzhangg/finalmilestone/</a
+        ><br />
+        Link to GitHub repository:
+        <a href="https://github.com/masonzhangg/finalproj-glassbreaking/"
+          >github.com/masonzhangg/finalproj-glassbreaking/</a
+        ><br />
+
+        Slides:
+        <a href="https://shorturl.at/ZpGSE">https://shorturl.at/ZpGSE</a><br />
+
+        Video:
+        <a href="https://youtu.be/B56VQEw32Uo">https://youtu.be/B56VQEw32Uo</a>
+      </div>
+
+      <h2>Summary of Project</h2>
+      This project implements a realistic glass shattering simulation using
+      computer graphics techniques. The simulation models the physical
+      properties of glass, including fracture propagation and fragment dynamics,
+      to produce break patterns. The goal is to render shattering effects that
+      accurately reflect how glass behaves under impact.
+
+      <h2>Summary of Accomplishments</h2>
+      We built a real-time interactive glass shattering simulation using OpenGL,
+      the CGL framework. The fracture system generates Voronoi-based break
+      patterns by distributing seed points across a glass panel (roughly 20%
+      clustered near the impact site via a Gaussian distribution and 80%
+      uniformly scattered). Then it constructs a 2D Voronoi diagram through
+      iterative half-plane clipping to produce convex polygonal cells that
+      represent individual shard outlines. Each 2D cell is extruded into a
+      closed 3D mesh with front and back faces plus side walls, using the
+      panel's thickness and world-space coordinate frame, giving every shard
+      proper geometry for both rendering and physics. A rigid body physics
+      engine assigns each shard a mass and inertia tensor derived from its mesh
+      geometry, then integrates linear and angular motion under gravity with
+      damping. Ground-plane collision detection checks every vertex of every
+      shard against the floor, and a two-stage response first bounces shards
+      with horizontal scatter on initial contact, then snaps them flat and puts
+      them to sleep on second contact to prevent bouncing and jittering. The
+      rendering pipeline uses a custom GLSL glass shader that computes Schlick
+      Fresnel reflectance, dual-light specular highlights, and
+      environment-mapped reflections sampled from a loaded background texture,
+      all composited at very low base alpha to achieve a transparent glass look.
+      A separate solid shader handles the ground plane, and a fullscreen quad
+      shader draws the background. The interactive demo allows for clicking on
+      the glass panel to trigger the initial shatter (spawning up to 250
+      shards), and then clicking on individual fallen shards to re-fracture them
+      by generating a new Voronoi diagram clipped to the parent cell's polygon
+      while inheriting the parent's velocity and spin. The demo also supports
+      pausing and resetting using "P" and "R" respectively, and a real-time FPS
+      count.
+
+      <h2>Preliminary Results</h2>
+      When the program runs, it launches a window, renders a glass panel with a
+      sky background, and a ground plane. There is also interactive shattering.
+      On the initial shatter, there are 250 shards, but then it increases to 500
+      shards on the next shatters.
+
+      <h2>Reflection on Progress</h2>
+      As of April 16, out progress lines up well with what we have produced at
+      the start of the project. We completed the proposal pretty quickly and
+      started moving onto implementation. The Voronoi-based fracture generation,
+      extrusion of shards into 3D meshes, rigid-body physics with gravity and
+      ground interaction, and a glass-oriented shading pass with Fresnel,
+      specular highlights, and environment-mapped reflections are all wired
+      together in an interactive demo where users can shatter the panel, watch
+      fragments fall, and subdivide shards further. We are ahead of pace for the
+      Week 3 Milestone and there is definitely enough time left to refine the
+      visuals and the realistic factor of the glass. We can spend week 4 on
+      optimizing our algorithms and making our program faster, before the final
+      video, slides, and presentation. The remaining work is pretty much testing
+      and optimizing as we have the core systems already.
+    </div>
+  </body>
+</html>
